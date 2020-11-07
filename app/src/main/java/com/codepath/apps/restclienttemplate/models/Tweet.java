@@ -15,12 +15,14 @@ public class Tweet {
     public String createdAt;
     public User user;
     public long id;
+    public String relativeTime;
 
 
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
         Tweet tweet = new Tweet();
         tweet.body = jsonObject.getString("text");
         tweet.createdAt = jsonObject.getString("created_at");
+        tweet.relativeTime = getFormattedTimestamp(tweet.createdAt);
         // user should actually be a java model but what we are getting here is a json object so User.
         // So creating a fromJson method inside User that returns a Java object
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
@@ -39,5 +41,8 @@ public class Tweet {
         return tweets;
     }
 
+    public static String getFormattedTimestamp(String createdAt){
+        return TimeFormatter.getTimeDifference(createdAt);
+    }
 
 }
