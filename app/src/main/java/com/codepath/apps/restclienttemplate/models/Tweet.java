@@ -14,6 +14,7 @@ public class Tweet {
     public String body;
     public String createdAt;
     public User user;
+    public long id;
 
 
     public static Tweet fromJson(JSONObject jsonObject) throws JSONException {
@@ -23,6 +24,7 @@ public class Tweet {
         // user should actually be a java model but what we are getting here is a json object so User.
         // So creating a fromJson method inside User that returns a Java object
         tweet.user = User.fromJson(jsonObject.getJSONObject("user"));
+        tweet.id = jsonObject.getLong("id");
 
         // Building tweet as per the json object
         return tweet;
