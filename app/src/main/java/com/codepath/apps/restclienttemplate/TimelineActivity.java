@@ -1,12 +1,17 @@
 package com.codepath.apps.restclienttemplate;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.codepath.apps.restclienttemplate.models.EndlessRecyclerViewScrollListener;
 import com.codepath.apps.restclienttemplate.models.Tweet;
@@ -15,6 +20,7 @@ import com.github.scribejava.apis.TwitterApi;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +29,19 @@ import okhttp3.Headers;
 
 public class TimelineActivity extends AppCompatActivity {
 
+
+
     TwitterClient client;
     RecyclerView rvTweets;
     List<Tweet> tweets;
     TweetsAdapter adapter;
     SwipeRefreshLayout swipeContainer;
     EndlessRecyclerViewScrollListener scrollListener;
+
+
     public static final String TAG = "TimelineActivity";
+    private final int REQUEST_CODE = 20;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +85,45 @@ public class TimelineActivity extends AppCompatActivity {
         // Scroll listener to RecyclerView
         rvTweets.addOnScrollListener(scrollListener);
         populateHomeTimeline();
+    }
+
+    // Menu bar
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; adds items to action bar if it is present
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        // For the menu to be displayed, we have to return true
+        return true;
+    }
+
+
+    // To handle clicks on the menu 1. one way to do it is onclicked but 2. onoptionselected
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // compare if it is the item we want, if the icon has been selected
+//        Toast.makeText(this,"Compose!", Toast.LENGTH_SHORT).show();
+        // Navigate to compose activity
+        Intent intent = new Intent(this, ComposeActivity.class);
+        startActivityForResult(intent, REQUEST_CODE );
+        return true;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode == REQUEST_CODE && resultCode == RESULT_OK){
+            // Get data from the intent (tweet), what the user has published. We have access to it in the timeline activity
+            Tweet tweet = Parcels.unwrap(data.getParcelableExtra("tweet"));
+            //Update the recycler view with the tweet
+            //Modify data source of tweets, add latest tweet to the list of tweets
+            tweets.add(0, tweet);
+            //Update the adapter
+            adapter.notifyItemInserted(0);
+            // to show the timeline from the latest tweet after coming back
+            rvTweets.smoothScrollToPosition(0);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private void loadMoreData() {
